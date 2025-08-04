@@ -22,12 +22,9 @@ class MongoDBStorage implements IStorage {
       connectTimeoutMS: 30000,
       socketTimeoutMS: 30000,
       maxPoolSize: 10,
-      retryWrites: true,
-      ssl: true,
-      sslValidate: true,
-      authSource: 'admin'
+      retryWrites: true
     });
-    this.db = this.client.db('possystems');
+    this.db = this.client.db('posSystems');
     this.adminUsers = this.db.collection('adminUsers');
     this.posSystems = this.db.collection('posSystems');
     this.products = this.db.collection('products');
