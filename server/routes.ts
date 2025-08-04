@@ -357,7 +357,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (Object.keys(updates).length > 0) {
-        await mongoStorage.updateProduct(posId, updates);
+        await mongoStorage.updatePOSSystem(posId, updates);
       }
 
       res.json({ message: "Business information updated successfully" });

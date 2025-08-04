@@ -107,6 +107,15 @@ class MongoDBStorage implements IStorage {
     return result || undefined;
   }
 
+  async updatePOSSystem(id: string, updates: Partial<POSSystem>): Promise<POSSystem | undefined> {
+    const result = await this.posSystems.findOneAndUpdate(
+      { id },
+      { $set: updates },
+      { returnDocument: 'after' }
+    );
+    return result || undefined;
+  }
+
   async getAllPOSSystems(): Promise<POSSystem[]> {
     return await this.posSystems.find({}).toArray();
   }
@@ -289,6 +298,7 @@ export const mongoStorage = {
   async getPOSSystemByUsername(username: string) { return this.instance.getPOSSystemByUsername(username); },
   async createPOSSystem(system: InsertPOSSystem) { return this.instance.createPOSSystem(system); },
   async updatePOSSystemStatus(id: string, status: string, approvedBy?: string) { return this.instance.updatePOSSystemStatus(id, status, approvedBy); },
+  async updatePOSSystem(id: string, updates: Partial<POSSystem>) { return this.instance.updatePOSSystem(id, updates); },
   async getAllPOSSystems() { return this.instance.getAllPOSSystems(); },
   async getPOSSystemsByStatus(status: string) { return this.instance.getPOSSystemsByStatus(status); },
   async deletePOSSystem(id: string) { return this.instance.deletePOSSystem(id); },
