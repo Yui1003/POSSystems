@@ -1,4 +1,3 @@
-
 import { MongoClient, Db, Collection } from 'mongodb';
 import { AdminUser, POSSystem, Product, Transaction, InsertAdminUser, InsertPOSSystem, InsertProduct, InsertTransaction } from '@shared/schema';
 import { IStorage } from './storage';
@@ -16,8 +15,18 @@ class MongoDBStorage implements IStorage {
     if (!uri) {
       throw new Error('MONGODB_URI environment variable is required');
     }
-    
-    this.client = new MongoClient(uri);
+
+    // Add connection options for MongoDB Atlas
+    this.client = new MongoClient(uri, {
+      serverSelectionTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+      socketTimeoutMS: 30000,
+      maxPoolSize: 10,
+      retryWrites: true,
+      ssl: true,
+      sslValidate: true,
+      authSource: 'admin'
+    });
     this.db = this.client.db('possystems');
     this.adminUsers = this.db.collection('adminUsers');
     this.posSystems = this.db.collection('posSystems');
@@ -272,7 +281,7 @@ export const mongoStorage = {
     }
     return _mongoStorage;
   },
-  
+
   // Proxy all methods to the actual instance
   async connect() { return this.instance.connect(); },
   async disconnect() { return this.instance.disconnect(); },
