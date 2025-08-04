@@ -4,7 +4,7 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
+import { mongoStorage } from "./mongodb-storage";
 import { AdminUser, POSSystem } from "@shared/schema";
 
 declare global {
@@ -46,7 +46,8 @@ export function setupAuth(app: Express) {
     secret: process.env.SESSION_SECRET || "pos-system-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
-    store: storage.sessionStore,
+    // Using memory store for sessions in development - in production use a proper session store
+    // store: new MemoryStore(),
     cookie: {
       secure: false, // Set to true in production with HTTPS
       httpOnly: true,
@@ -59,37 +60,60 @@ export function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // Admin authentication strategy
-  passport.use("admin-local", new LocalStrategy(
-    { usernameField: "username", passwordField: "password" },
-    async (username, password, done) => {
+  passport.use(
+    "admin",
+    new LocalStrategy(async (username, password, done) => {
       try {
-        const user = await storage.getAdminUserByUsername(username);
-        if (!user || !(await comparePasswords(password, user.password))) {
-          return done(null, false, { message: "Invalid admin credentials" });
+        const adminUser = await mongoStorage.getAdminUserByUsername(username);
+        if (!adminUser) {
+          return done(null, false, { message: "Invalid username or password" });
         }
-        return done(null, { ...user, userType: "admin" as const });
-      } catch (error) {
-        return done(error);
-      }
-    }
-  ));
 
-  // POS authentication strategy
-  passport.use("pos-local", new LocalStrategy(
-    { usernameField: "username", passwordField: "password" },
-    async (username, password, done) => {
-      try {
-        const system = await storage.getPOSSystemByUsername(username);
-        if (!system || system.status !== "approved" || !(await comparePasswords(password, system.password))) {
-          return done(null, false, { message: "Invalid POS credentials or system not approved" });
+        const isValid = await comparePasswords(password, adminUser.password);
+        if (!isValid) {
+          return done(null, false, { message: "Invalid username or password" });
         }
-        return done(null, { ...system, userType: "pos" as const });
+
+        return done(null, {
+          id: adminUser.id,
+          username: adminUser.username,
+          userType: "admin",
+        });
       } catch (error) {
         return done(error);
       }
-    }
-  ));
+    })
+  );
+
+  passport.use(
+    "pos",
+    new LocalStrategy(async (username, password, done) => {
+      try {
+        const posSystem = await mongoStorage.getPOSSystemByUsername(username);
+        if (!posSystem) {
+          return done(null, false, { message: "Invalid username or password" });
+        }
+
+        if (posSystem.status !== "approved") {
+          return done(null, false, { message: "POS system not approved" });
+        }
+
+        const isValid = await comparePasswords(password, posSystem.password);
+        if (!isValid) {
+          return done(null, false, { message: "Invalid username or password" });
+        }
+
+        return done(null, {
+          id: posSystem.id,
+          username: posSystem.username,
+          businessName: posSystem.businessName,
+          userType: "pos",
+        });
+      } catch (error) {
+        return done(error);
+      }
+    })
+  );
 
   passport.serializeUser((user: any, done) => {
     done(null, { id: user.id, userType: user.userType });
@@ -97,15 +121,16 @@ export function setupAuth(app: Express) {
 
   passport.deserializeUser(async (data: any, done) => {
     try {
+      await mongoStorage.connect();
       if (data.userType === "admin") {
-        const user = await storage.getAdminUser(data.id);
+        const user = await mongoStorage.getAdminUser(data.id);
         if (user) {
           done(null, { ...user, userType: "admin" as const });
         } else {
           done(null, false);
         }
       } else if (data.userType === "pos") {
-        const system = await storage.getPOSSystem(data.id);
+        const system = await mongoStorage.getPOSSystem(data.id);
         if (system && system.status === "approved") {
           done(null, { ...system, userType: "pos" as const });
         } else {
@@ -119,17 +144,14 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Admin login endpoint
-  app.post("/api/admin/login", passport.authenticate("admin-local"), (req, res) => {
+  app.post("/api/admin/login", passport.authenticate("admin"), (req, res) => {
     res.status(200).json(req.user);
   });
 
-  // POS login endpoint
-  app.post("/api/pos/login", passport.authenticate("pos-local"), (req, res) => {
+  app.post("/api/pos/login", passport.authenticate("pos"), (req, res) => {
     res.status(200).json(req.user);
   });
 
-  // Logout endpoint
   app.post("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) return next(err);
@@ -137,7 +159,6 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Get current user endpoint
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);

@@ -43,7 +43,7 @@ async function migrateData() {
     await client.connect();
     console.log('✅ Connected to MongoDB Atlas');
 
-    const db = client.db('possystems');
+    const db = client.db('posSystems');
     
     // Test the connection by listing collections
     const collections = await db.listCollections().toArray();

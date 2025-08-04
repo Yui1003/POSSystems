@@ -1,6 +1,10 @@
+import { config } from "dotenv";
+config(); // Load environment variables from .env file
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { createServer } from "http";
 import { mongoStorage } from "./mongodb-storage";
 
 const app = express();
@@ -66,14 +70,13 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
   }, async () => {
-    // Connect to MongoDB if using MongoDB storage
-    if (process.env.MONGODB_URI) {
-      try {
-        await mongoStorage.connect();
-        console.log('Connected to MongoDB');
-      } catch (error) {
-        console.error('Failed to connect to MongoDB:', error);
-      }
+    // Test MongoDB connection
+    try {
+      await mongoStorage.connect();
+      console.log("Database connected via MongoDB");
+    } catch (error) {
+      console.error("MongoDB connection failed:", error);
+      process.exit(1);
     }
     log(`serving on port ${port}`);
   });

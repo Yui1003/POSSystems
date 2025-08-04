@@ -76,7 +76,8 @@ class MongoDBStorage implements IStorage {
       approvedBy: null,
       businessAddress: '',
       businessPhone: '',
-      receiptFooter: 'Thank you for your business!\nPlease come again'
+      receiptFooter: 'Thank you for your business!\nPlease come again',
+      taxRate: '0'
     };
     await this.posSystems.insertOne(newSystem);
     return newSystem;
@@ -120,8 +121,13 @@ class MongoDBStorage implements IStorage {
 
   async createProduct(product: InsertProduct): Promise<Product> {
     const newProduct: Product = {
-      ...product,
       id: `product-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: product.name,
+      posId: product.posId,
+      price: product.price,
+      category: product.category || 'General',
+      stock: product.stock || 0,
+      image: product.image || null,
       isActive: 'true'
     };
     await this.products.insertOne(newProduct);
@@ -210,6 +216,92 @@ class MongoDBStorage implements IStorage {
       recentTransactions: transactions.slice(0, 5)
     };
   }
+
+  // Additional methods needed by routes.ts
+  async getDailySales(posId: string, date: Date): Promise<any> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const transactions = await this.transactions.find({
+      posId,
+      createdAt: {
+        $gte: startOfDay,
+        $lte: endOfDay
+      }
+    }).toArray();
+
+    const totalSales = transactions.reduce((sum, t) => sum + parseFloat(t.total), 0);
+    return {
+      date: date.toISOString().split('T')[0],
+      totalSales,
+      transactionCount: transactions.length,
+      transactions
+    };
+  }
+
+  async getSalesByDateRange(posId: string, startDate: Date, endDate: Date): Promise<Transaction[]> {
+    return await this.transactions.find({
+      posId,
+      createdAt: {
+        $gte: startDate,
+        $lte: endDate
+      }
+    }).sort({ createdAt: -1 }).toArray();
+  }
+
+  // Legacy methods for compatibility with old storage system
+  loadData(): any {
+    // This is a legacy method - MongoDB operations don't need this
+    return {};
+  }
+
+  saveData(data: any): void {
+    // This is a legacy method - MongoDB operations don't need this
+    return;
+  }
 }
 
-export const mongoStorage = new MongoDBStorage();
+let _mongoStorage: MongoDBStorage | null = null;
+
+export const mongoStorage = {
+  get instance(): MongoDBStorage {
+    if (!_mongoStorage) {
+      _mongoStorage = new MongoDBStorage();
+    }
+    return _mongoStorage;
+  },
+  
+  // Proxy all methods to the actual instance
+  async connect() { return this.instance.connect(); },
+  async disconnect() { return this.instance.disconnect(); },
+  async getAdminUser(id: string) { return this.instance.getAdminUser(id); },
+  async getAdminUserByUsername(username: string) { return this.instance.getAdminUserByUsername(username); },
+  async createAdminUser(user: InsertAdminUser) { return this.instance.createAdminUser(user); },
+  async getPOSSystem(id: string) { return this.instance.getPOSSystem(id); },
+  async getPOSSystemByUsername(username: string) { return this.instance.getPOSSystemByUsername(username); },
+  async createPOSSystem(system: InsertPOSSystem) { return this.instance.createPOSSystem(system); },
+  async updatePOSSystemStatus(id: string, status: string, approvedBy?: string) { return this.instance.updatePOSSystemStatus(id, status, approvedBy); },
+  async getAllPOSSystems() { return this.instance.getAllPOSSystems(); },
+  async getPOSSystemsByStatus(status: string) { return this.instance.getPOSSystemsByStatus(status); },
+  async deletePOSSystem(id: string) { return this.instance.deletePOSSystem(id); },
+  async getProductsByPOSId(posId: string) { return this.instance.getProductsByPOSId(posId); },
+  async createProduct(product: InsertProduct) { return this.instance.createProduct(product); },
+  async getProduct(id: string) { return this.instance.getProduct(id); },
+  async updateProduct(id: string, updates: Partial<Product>) { return this.instance.updateProduct(id, updates); },
+  async deleteProduct(id: string) { return this.instance.deleteProduct(id); },
+  async updateProductStock(productId: string, newStock: number) { return this.instance.updateProductStock(productId, newStock); },
+  async reduceProductStock(productId: string, quantity: number) { return this.instance.reduceProductStock(productId, quantity); },
+  async createTransaction(transaction: InsertTransaction) { return this.instance.createTransaction(transaction); },
+  async getTransactionsByPOSId(posId: string) { return this.instance.getTransactionsByPOSId(posId); },
+  async getTransaction(id: string) { return this.instance.getTransaction(id); },
+  async getAdminStats() { return this.instance.getAdminStats(); },
+  async getPOSAnalytics(posId: string) { return this.instance.getPOSAnalytics(posId); },
+  async getDailySales(posId: string, date: Date) { return this.instance.getDailySales(posId, date); },
+  async getSalesByDateRange(posId: string, startDate: Date, endDate: Date) { return this.instance.getSalesByDateRange(posId, startDate, endDate); },
+  loadData() { return this.instance.loadData(); },
+  saveData(data: any) { return this.instance.saveData(data); }
+};
+
+export { MongoDBStorage };

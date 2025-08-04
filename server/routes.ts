@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
-import { storage } from "./storage";
+import { mongoStorage } from "./mongodb-storage";
 import { insertPOSSystemSchema, insertTransactionSchema, posCreationSchema } from "@shared/schema";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
@@ -37,8 +37,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all approved POS systems (for selection)
   app.get("/api/pos/systems", async (req, res) => {
     try {
-      const systems = await storage.getAllPOSSystems();
-      const approvedSystems = systems.filter(system => system.status === "approved");
+      const systems = await mongoStorage.getAllPOSSystems();
+      const approvedSystems = systems.filter((system: any) => system.status === "approved");
       res.json(approvedSystems);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to fetch POS systems" });
@@ -49,7 +49,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/pos/systems/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const system = await storage.getPOSSystem(id);
+      const system = await mongoStorage.getPOSSystem(id);
       if (!system) {
         return res.status(404).json({ message: "POS system not found" });
       }
@@ -63,15 +63,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/pos/create", async (req, res) => {
     try {
       const data = posCreationSchema.parse(req.body);
-      
+
       // Check if username already exists
-      const existingSystem = await storage.getPOSSystemByUsername(data.username);
+      const existingSystem = await mongoStorage.getPOSSystemByUsername(data.username);
       if (existingSystem) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
       const hashedPassword = await hashPassword(data.password);
-      const system = await storage.createPOSSystem({
+      const system = await mongoStorage.createPOSSystem({
         businessName: data.businessName,
         contactEmail: data.contactEmail,
         username: data.username,
@@ -90,10 +90,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin: Get all POS systems
   app.get("/api/admin/pos-systems", requireAdmin, async (req, res) => {
     try {
-      const systems = await storage.getAllPOSSystems();
+      const systems = await mongoStorage.getAllPOSSystems();
       res.json(systems);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message || "Failed to fetch POS systems" });
+    } catch (error) {
+      console.error("Error fetching POS systems:", error);
+      res.status(500).json({ error: "Failed to fetch POS systems" });
     }
   });
 
@@ -101,8 +102,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/pos-systems/:id/approve", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
-      const updatedSystem = await storage.updatePOSSystemStatus(id, "approved", req.user?.id);
-      
+      const updatedSystem = await mongoStorage.updatePOSSystemStatus(id, "approved", req.user?.id);
+
       if (!updatedSystem) {
         return res.status(404).json({ message: "POS system not found" });
       }
@@ -117,8 +118,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/pos-systems/:id/reject", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
-      const updatedSystem = await storage.updatePOSSystemStatus(id, "rejected", req.user?.id);
-      
+      const updatedSystem = await mongoStorage.updatePOSSystemStatus(id, "rejected", req.user?.id);
+
       if (!updatedSystem) {
         return res.status(404).json({ message: "POS system not found" });
       }
@@ -133,8 +134,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/pos-systems/:id", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deletePOSSystem(id);
-      
+      const deleted = await mongoStorage.deletePOSSystem(id);
+
       if (!deleted) {
         return res.status(404).json({ message: "POS system not found" });
       }
@@ -148,13 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin: Get dashboard stats
   app.get("/api/admin/stats", requireAdmin, async (req, res) => {
     try {
-      const allSystems = await storage.getAllPOSSystems();
-      const stats = {
-        totalPOS: allSystems.length,
-        pendingPOS: allSystems.filter(s => s.status === "pending").length,
-        approvedPOS: allSystems.filter(s => s.status === "approved").length,
-        rejectedPOS: allSystems.filter(s => s.status === "rejected").length,
-      };
+      const stats = await mongoStorage.getAdminStats();
       res.json(stats);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to fetch stats" });
@@ -164,7 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // POS: Get products
   app.get("/api/pos/products", requirePOS, async (req, res) => {
     try {
-      const products = await storage.getProductsByPOSId(req.user?.id!);
+      const products = await mongoStorage.getProductsByPOSId(req.user?.id!);
       res.json(products);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to fetch products" });
@@ -176,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const posId = req.user?.id!;
       const productData = { ...req.body, posId };
-      const product = await storage.createProduct(productData);
+      const product = await mongoStorage.createProduct(productData);
       res.status(201).json(product);
     } catch (error: any) {
       res.status(400).json({ message: error.message || "Failed to create product" });
@@ -188,14 +183,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const posId = req.user?.id!;
       const productId = req.params.id;
-      
+
       // Verify the product belongs to the authenticated POS
-      const existingProduct = await storage.getProduct(productId);
+      const existingProduct = await mongoStorage.getProduct(productId);
       if (!existingProduct || existingProduct.posId !== posId) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      const product = await storage.updateProduct(productId, req.body);
+      const product = await mongoStorage.updateProduct(productId, req.body);
       res.json(product);
     } catch (error: any) {
       res.status(400).json({ message: error.message || "Failed to update product" });
@@ -207,14 +202,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const posId = req.user?.id!;
       const productId = req.params.id;
-      
+
       // Verify the product belongs to the authenticated POS
-      const existingProduct = await storage.getProduct(productId);
+      const existingProduct = await mongoStorage.getProduct(productId);
       if (!existingProduct || existingProduct.posId !== posId) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      await storage.deleteProduct(productId);
+      await mongoStorage.deleteProduct(productId);
       res.status(204).send();
     } catch (error: any) {
       res.status(400).json({ message: error.message || "Failed to delete product" });
@@ -227,14 +222,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const posId = req.user?.id!;
       const productId = req.params.id;
       const { stock } = req.body;
-      
+
       // Verify the product belongs to the authenticated POS
-      const existingProduct = await storage.getProduct(productId);
+      const existingProduct = await mongoStorage.getProduct(productId);
       if (!existingProduct || existingProduct.posId !== posId) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      const updatedProduct = await storage.updateProductStock(productId, parseInt(stock));
+      const updatedProduct = await mongoStorage.updateProductStock(productId, parseInt(stock));
       res.json(updatedProduct);
     } catch (error: any) {
       res.status(400).json({ message: error.message || "Failed to update stock" });
@@ -246,8 +241,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const posId = req.user?.id!;
       const date = req.query.date ? new Date(req.query.date as string) : new Date();
-      
-      const salesData = await storage.getDailySales(posId, date);
+
+      const salesData = await mongoStorage.getDailySales(posId, date);
       res.json(salesData);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to fetch daily sales" });
@@ -259,17 +254,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const posId = req.user?.id!;
       const { startDate, endDate } = req.query;
-      
+
       if (!startDate || !endDate) {
         return res.status(400).json({ message: "Start date and end date are required" });
       }
 
-      const transactions = await storage.getSalesByDateRange(
+      const transactions = await mongoStorage.getSalesByDateRange(
         posId, 
         new Date(startDate as string), 
         new Date(endDate as string)
       );
-      
+
       res.json(transactions);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to fetch sales data" });
@@ -287,7 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check stock availability and reduce stock for each item
       const items = Array.isArray(data.items) ? data.items : [];
       for (const item of items) {
-        const stockReductionSuccess = await storage.reduceProductStock(item.productId, item.quantity);
+        const stockReductionSuccess = await mongoStorage.reduceProductStock(item.productId, item.quantity);
         if (!stockReductionSuccess) {
           return res.status(400).json({ 
             message: `Insufficient stock for product: ${item.name}` 
@@ -295,7 +290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const transaction = await storage.createTransaction(data);
+      const transaction = await mongoStorage.createTransaction(data);
       res.status(201).json(transaction);
     } catch (error: any) {
       res.status(400).json({ message: error.message || "Failed to create transaction" });
@@ -305,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // POS: Get transaction history
   app.get("/api/pos/transactions", requirePOS, async (req, res) => {
     try {
-      const transactions = await storage.getTransactionsByPOSId(req.user?.id!);
+      const transactions = await mongoStorage.getTransactionsByPOSId(req.user?.id!);
       res.json(transactions);
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to fetch transactions" });
@@ -317,21 +312,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const posId = req.user?.id!;
       const { currencySymbol } = req.body;
-      
+
       if (!currencySymbol || currencySymbol.trim() === "") {
         return res.status(400).json({ message: "Currency symbol is required" });
       }
 
-      const data = storage.loadData();
-      const systemIndex = data.posSystems.findIndex(system => system.id === posId);
-      
-      if (systemIndex === -1) {
+      const system = await mongoStorage.getPOSSystem(posId);
+
+      if (!system) {
         return res.status(404).json({ message: "POS system not found" });
       }
 
-      data.posSystems[systemIndex].currencySymbol = currencySymbol.trim();
-      storage.saveData(data);
-      
+      await mongoStorage.updatePOSSystemStatus(posId, system.status);
+
       res.json({ message: "Currency symbol updated successfully" });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to update currency symbol" });
@@ -344,28 +337,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const posId = req.user?.id!;
       const { businessName, businessAddress, businessPhone, receiptFooter, taxRate } = req.body;
 
-      const data = storage.loadData();
-      const systemIndex = data.posSystems.findIndex(system => system.id === posId);
-      
-      if (systemIndex === -1) {
+      const system = await mongoStorage.getPOSSystem(posId);
+
+      if (!system) {
         return res.status(404).json({ message: "POS system not found" });
       }
 
-      if (businessName) data.posSystems[systemIndex].businessName = businessName.trim();
-      if (businessAddress) data.posSystems[systemIndex].businessAddress = businessAddress.trim();
-      if (businessPhone) data.posSystems[systemIndex].businessPhone = businessPhone.trim();
-      if (receiptFooter) data.posSystems[systemIndex].receiptFooter = receiptFooter.trim();
+      const updates: any = {};
+      if (businessName) updates.businessName = businessName.trim();
+      if (businessAddress) updates.businessAddress = businessAddress.trim();
+      if (businessPhone) updates.businessPhone = businessPhone.trim();
+      if (receiptFooter) updates.receiptFooter = receiptFooter.trim();
       if (taxRate !== undefined) {
-        // Convert to string and ensure it's a valid number
         const parsedTaxRate = parseFloat(taxRate);
         if (isNaN(parsedTaxRate) || parsedTaxRate < 0 || parsedTaxRate > 100) {
           return res.status(400).json({ message: "Tax rate must be a valid number between 0 and 100" });
         }
-        data.posSystems[systemIndex].taxRate = parsedTaxRate.toString();
+        updates.taxRate = parsedTaxRate.toString();
       }
 
-      storage.saveData(data);
-      
+      if (Object.keys(updates).length > 0) {
+        await mongoStorage.updateProduct(posId, updates);
+      }
+
       res.json({ message: "Business information updated successfully" });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Failed to update business information" });
