@@ -1,0 +1,223 @@
+{
+  "adminUsers": [
+    {
+      "id": "admin-001",
+      "username": "superadmin",
+      "password": "cab708386cd92f7c0d40d2ce24427be9bc6f8de3179d3eac308f564528b9ad71ae98928bf390156fbc6547e9519f1ffc3ba120762880bc300d429b13e84fc07f.43975cbfd0f951ab630217b8aa9568f4",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "posSystems": [
+    {
+      "businessName": "Tapsihan ni Maurice",
+      "contactEmail": "rc.maurice.montano@cvsu.edu.ph",
+      "username": "TapRice",
+      "password": "5429d6d863a094e7922ec2708633062519d485164812bbcdbf06d641da8b980b72c1194ea7d15dbde0870d68687c4338c9a3ae4c3b46eae337c658e035b9d1a3.dc6dc7abf78b8bc9059e51aa0f8ac092",
+      "id": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "status": "approved",
+      "currencySymbol": "₱",
+      "createdAt": "2025-08-04T03:24:47.610Z",
+      "approvedAt": "2025-08-04T03:24:58.447Z",
+      "approvedBy": "admin-001",
+      "businessAddress": "123 Main Street, City, ST 12345",
+      "businessPhone": "(555) 123-4567",
+      "receiptFooter": "Thank you for your business!\nPlease come again"
+    }
+  ],
+  "products": [
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "name": "Bangsilog",
+      "price": "99",
+      "category": "Food",
+      "stock": 46,
+      "id": "8aa60d54-ea25-4c8d-8bf6-434666aabb6f",
+      "isActive": "true",
+      "image": "https://www.goodah.com.ph/wp-content/uploads/2020/06/NEW-BANGSILOG.jpg"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "name": "Coke Omsim",
+      "price": "25",
+      "category": "Beverages",
+      "stock": 28,
+      "id": "7c7d517c-11bf-4987-b8b8-680e15c998c4",
+      "isActive": "true",
+      "image": "https://imartgrocersph.com/wp-content/uploads/2020/09/Coke-Regular-Mismo-12_s.png"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "name": "Criminal Water",
+      "price": "10",
+      "category": "Beverages",
+      "stock": 36,
+      "id": "16b8084c-7f30-4614-ac79-2e84c7cc4315",
+      "isActive": "true",
+      "image": "https://static.wixstatic.com/media/6e20fa_69d567038b35483cbfa0584928afccf2~mv2.png/v1/fill/w_980,h_730,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/6e20fa_69d567038b35483cbfa0584928afccf2~mv2.png"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "name": "Tapsilog",
+      "price": "99",
+      "category": "Food",
+      "stock": 19,
+      "id": "0c5efa37-4239-481b-9f87-f7b6a142ec61",
+      "isActive": "true",
+      "image": "https://assets.bonappetit.com/photos/61e8411b3fb9f421b7590ae4/1:1/w_1017,h_1017,c_limit/20211208%20Tapsilog%20LEDE.jpg"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "name": "Hotsilog",
+      "price": "55",
+      "category": "Food",
+      "stock": 14,
+      "id": "34c53871-00a5-4ee7-8238-049d84cca6d7",
+      "isActive": "true",
+      "image": "https://live.staticflickr.com/2550/3737548059_7211d8a877_b.jpg"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "name": "Brownies",
+      "price": "25",
+      "category": "Desserts",
+      "stock": 23,
+      "id": "369aa4b9-5bed-4a2d-b1b5-7c9d2da38b0b",
+      "isActive": "true",
+      "image": "https://www.southernliving.com/thmb/eLSgazITlYrKf9EFTR9y1L2mSxg=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Southern-Living-Homemade_Brownies_023-3c582f0fba1842dd918a3d9c26c1ab59.jpg"
+    }
+  ],
+  "transactions": [
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "receiptNumber": "R355185",
+      "items": [
+        {
+          "productId": "8aa60d54-ea25-4c8d-8bf6-434666aabb6f",
+          "name": "Bangsilog",
+          "price": 99,
+          "quantity": 1
+        },
+        {
+          "productId": "7c7d517c-11bf-4987-b8b8-680e15c998c4",
+          "name": "Coke Omsim",
+          "price": 25,
+          "quantity": 1
+        }
+      ],
+      "subtotal": "124.00",
+      "tax": "10.54",
+      "total": "134.54",
+      "paymentMethod": "cash",
+      "id": "341ccb72-3093-4250-8c4e-b2fa782d6219",
+      "createdAt": "2025-08-04T03:32:35.501Z"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "receiptNumber": "R423505",
+      "items": [
+        {
+          "productId": "0c5efa37-4239-481b-9f87-f7b6a142ec61",
+          "name": "Tapsilog",
+          "price": 99,
+          "quantity": 1
+        },
+        {
+          "productId": "369aa4b9-5bed-4a2d-b1b5-7c9d2da38b0b",
+          "name": "Brownies",
+          "price": 25,
+          "quantity": 2
+        },
+        {
+          "productId": "16b8084c-7f30-4614-ac79-2e84c7cc4315",
+          "name": "Criminal Water",
+          "price": 3.75,
+          "quantity": 4
+        }
+      ],
+      "subtotal": "164.00",
+      "tax": "13.94",
+      "total": "177.94",
+      "paymentMethod": "cash",
+      "id": "c88deaee-4f9a-4dc5-bcf9-68adfdce78ad",
+      "createdAt": "2025-08-04T03:33:43.513Z"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "receiptNumber": "R650498",
+      "items": [
+        {
+          "productId": "8aa60d54-ea25-4c8d-8bf6-434666aabb6f",
+          "name": "Bangsilog",
+          "price": 99,
+          "quantity": 1
+        }
+      ],
+      "subtotal": "99.00",
+      "tax": "8.42",
+      "total": "107.42",
+      "paymentMethod": "cash",
+      "id": "9d151b03-7f0d-4a42-8ded-d7d8f1a7e315",
+      "createdAt": "2025-08-04T03:37:30.505Z"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "receiptNumber": "R145089",
+      "items": [
+        {
+          "productId": "8aa60d54-ea25-4c8d-8bf6-434666aabb6f",
+          "name": "Bangsilog",
+          "price": 99,
+          "quantity": 1
+        },
+        {
+          "productId": "7c7d517c-11bf-4987-b8b8-680e15c998c4",
+          "name": "Coke Omsim",
+          "price": 25,
+          "quantity": 1
+        }
+      ],
+      "subtotal": "124.00",
+      "tax": "10.54",
+      "total": "134.54",
+      "paymentMethod": "cash",
+      "id": "c23f86a5-d059-41ed-9dc8-20f48d9d4cec",
+      "createdAt": "2025-08-04T03:45:45.095Z"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "receiptNumber": "R982264",
+      "items": [
+        {
+          "productId": "8aa60d54-ea25-4c8d-8bf6-434666aabb6f",
+          "name": "Bangsilog",
+          "price": 99,
+          "quantity": 1
+        }
+      ],
+      "subtotal": "99.00",
+      "tax": "8.42",
+      "total": "107.42",
+      "paymentMethod": "cash",
+      "id": "7f9028bf-81b1-4ba1-a5f2-9a9b063b2342",
+      "createdAt": "2025-08-04T04:16:22.269Z"
+    },
+    {
+      "posId": "8cb4a98b-5b90-4207-b07e-817e1b98d133",
+      "receiptNumber": "R382959",
+      "items": [
+        {
+          "productId": "34c53871-00a5-4ee7-8238-049d84cca6d7",
+          "name": "Hotsilog",
+          "price": 55,
+          "quantity": 1
+        }
+      ],
+      "subtotal": "55.00",
+      "tax": "4.68",
+      "total": "59.67",
+      "paymentMethod": "cash",
+      "id": "87e14f30-1346-48cd-9dd3-efaeafedb9f1",
+      "createdAt": "2025-08-04T04:23:02.965Z"
+    }
+  ]
+}

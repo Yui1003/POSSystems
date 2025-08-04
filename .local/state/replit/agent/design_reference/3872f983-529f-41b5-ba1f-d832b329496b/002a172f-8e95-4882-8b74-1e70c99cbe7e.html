@@ -1,0 +1,644 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    'inter': ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    'primary': '#3B82F6',
+                    'secondary': '#6B7280',
+                    'success': '#10B981',
+                    'warning': '#F59E0B',
+                    'error': '#EF4444',
+                }
+            }
+        }
+    };
+    </script>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- @COMPONENT: NavigationHeader -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-cash-register text-primary text-2xl"></i>
+                        <span class="ml-2 text-xl font-semibold text-gray-900">POS Management</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4" id="user-menu">
+                    <!-- User menu will be populated based on login state -->
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: NavigationHeader -->
+
+    <!-- @COMPONENT: MainContainer -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        
+        <!-- @COMPONENT: LandingPage -->
+        <div id="landing-page" class="landing-view">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">POS Management System</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Manage your point-of-sale systems with enterprise-grade security and approval workflows</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <!-- Access Existing POS -->
+                <div class="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow cursor-pointer" data-event="click:showPOSLogin">
+                    <div class="text-center">
+                        <div class="mx-auto h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-store text-primary text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Access POS</h3>
+                        <p class="text-gray-600 mb-4">Login to your approved POS system</p>
+                        <button class="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors">
+                            Access POS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Create New POS -->
+                <div class="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow cursor-pointer" data-event="click:showPOSCreation">
+                    <div class="text-center">
+                        <div class="mx-auto h-16 w-16 bg-success/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-plus-circle text-success text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Create POS</h3>
+                        <p class="text-gray-600 mb-4">Request a new POS system setup</p>
+                        <button class="w-full bg-success text-white py-2 px-4 rounded-md hover:bg-emerald-600 transition-colors">
+                            Create POS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Access -->
+                <div class="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow cursor-pointer" data-event="click:showAdminLogin">
+                    <div class="text-center">
+                        <div class="mx-auto h-16 w-16 bg-warning/10 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-user-shield text-warning text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Admin Login</h3>
+                        <p class="text-gray-600 mb-4">Manage and approve POS systems</p>
+                        <button class="w-full bg-warning text-white py-2 px-4 rounded-md hover:bg-amber-600 transition-colors">
+                            Admin Access
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: LandingPage -->
+
+        <!-- @COMPONENT: POSLoginForm -->
+        <div id="pos-login" class="auth-view hidden">
+            <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+                <div class="text-center mb-6">
+                    <i class="fas fa-store text-primary text-3xl mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-900">POS Login</h2>
+                    <p class="text-gray-600 mt-2">Enter your POS credentials</p>
+                </div>
+                
+                <form class="space-y-4" data-implementation="Should validate credentials against data.json">
+                    <div>
+                        <label for="pos-username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" id="pos-username" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter POS username" required>
+                    </div>
+                    
+                    <div>
+                        <label for="pos-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="pos-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter password" required>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors" data-event="click:authenticatePOS">
+                        Access POS System
+                    </button>
+                </form>
+                
+                <button class="w-full mt-4 text-gray-600 hover:text-gray-800 transition-colors" data-event="click:showLanding">
+                    ← Back to Home
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: POSLoginForm -->
+
+        <!-- @COMPONENT: POSCreationForm -->
+        <div id="pos-creation" class="auth-view hidden">
+            <div class="max-w-lg mx-auto bg-white rounded-lg shadow-md p-8">
+                <div class="text-center mb-6">
+                    <i class="fas fa-plus-circle text-success text-3xl mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-900">Create New POS</h2>
+                    <p class="text-gray-600 mt-2">Submit a request for a new POS system</p>
+                </div>
+                
+                <form class="space-y-4" data-implementation="Should save to data.json with pending status">
+                    <div>
+                        <label for="business-name" class="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
+                        <input type="text" id="business-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-success focus:border-transparent" placeholder="Enter business name" required>
+                    </div>
+                    
+                    <div>
+                        <label for="contact-email" class="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
+                        <input type="email" id="contact-email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-success focus:border-transparent" placeholder="Enter contact email" required>
+                    </div>
+                    
+                    <div>
+                        <label for="new-username" class="block text-sm font-medium text-gray-700 mb-1">POS Username</label>
+                        <input type="text" id="new-username" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-success focus:border-transparent" placeholder="Choose a username" required>
+                    </div>
+                    
+                    <div>
+                        <label for="new-password" class="block text-sm font-medium text-gray-700 mb-1">POS Password</label>
+                        <input type="password" id="new-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-success focus:border-transparent" placeholder="Choose a password" required>
+                    </div>
+                    
+                    <div>
+                        <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <input type="password" id="confirm-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-success focus:border-transparent" placeholder="Confirm password" required>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                        <div class="flex">
+                            <i class="fas fa-info-circle text-yellow-600 mt-0.5 mr-2"></i>
+                            <p class="text-sm text-yellow-800">Your POS system will require admin approval before activation.</p>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-success text-white py-2 px-4 rounded-md hover:bg-emerald-600 transition-colors" data-event="click:submitPOSRequest">
+                        Submit POS Request
+                    </button>
+                </form>
+                
+                <button class="w-full mt-4 text-gray-600 hover:text-gray-800 transition-colors" data-event="click:showLanding">
+                    ← Back to Home
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: POSCreationForm -->
+
+        <!-- @COMPONENT: AdminLoginForm -->
+        <div id="admin-login" class="auth-view hidden">
+            <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+                <div class="text-center mb-6">
+                    <i class="fas fa-user-shield text-warning text-3xl mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-900">Admin Login</h2>
+                    <p class="text-gray-600 mt-2">Enter admin credentials</p>
+                </div>
+                
+                <form class="space-y-4" data-implementation="Should validate against .env admin credentials">
+                    <div>
+                        <label for="admin-username" class="block text-sm font-medium text-gray-700 mb-1">Admin Username</label>
+                        <input type="text" id="admin-username" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-warning focus:border-transparent" placeholder="Enter admin username" required>
+                    </div>
+                    
+                    <div>
+                        <label for="admin-password" class="block text-sm font-medium text-gray-700 mb-1">Admin Password</label>
+                        <input type="password" id="admin-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-warning focus:border-transparent" placeholder="Enter admin password" required>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-warning text-white py-2 px-4 rounded-md hover:bg-amber-600 transition-colors" data-event="click:authenticateAdmin">
+                        Access Admin Dashboard
+                    </button>
+                </form>
+                
+                <button class="w-full mt-4 text-gray-600 hover:text-gray-800 transition-colors" data-event="click:showLanding">
+                    ← Back to Home
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: AdminLoginForm -->
+
+        <!-- @COMPONENT: AdminDashboard -->
+        <div id="admin-dashboard" class="dashboard-view hidden">
+            <div class="mb-8">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                        <p class="text-gray-600 mt-1">Manage POS system requests and approvals</p>
+                    </div>
+                    <button class="bg-error text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors" data-event="click:logout">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-primary/10 rounded-md">
+                            <i class="fas fa-store text-primary text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total POS</p>
+                            <p class="text-2xl font-semibold text-gray-900" data-bind="stats.totalPOS">12</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-warning/10 rounded-md">
+                            <i class="fas fa-clock text-warning text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Pending</p>
+                            <p class="text-2xl font-semibold text-gray-900" data-bind="stats.pendingPOS">3</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-success/10 rounded-md">
+                            <i class="fas fa-check-circle text-success text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Approved</p>
+                            <p class="text-2xl font-semibold text-gray-900" data-bind="stats.approvedPOS">8</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-error/10 rounded-md">
+                            <i class="fas fa-times-circle text-error text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Rejected</p>
+                            <p class="text-2xl font-semibold text-gray-900" data-bind="stats.rejectedPOS">1</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POS Requests Table -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">POS System Requests</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Business</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- @MAP: posRequests.map(request => ( -->
+                            <tr data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">Coffee Shop Central</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">owner@coffeeshop.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">coffeepos01</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-warning/10 text-warning">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button class="bg-success text-white px-3 py-1 rounded text-xs hover:bg-emerald-600 transition-colors" data-event="click:approvePOS">
+                                        <i class="fas fa-check mr-1"></i>Approve
+                                    </button>
+                                    <button class="bg-error text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors" data-event="click:rejectPOS">
+                                        <i class="fas fa-times mr-1"></i>Reject
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">Tech Repair Store</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">info@techrepair.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">techpos02</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-success/10 text-success">Approved</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-14</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="bg-error text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors" data-event="click:revokePOS">
+                                        <i class="fas fa-ban mr-1"></i>Revoke
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- @END_MAP )) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: AdminDashboard -->
+
+        <!-- @COMPONENT: POSInterface -->
+        <div id="pos-interface" class="pos-view hidden">
+            <div class="flex h-screen bg-gray-100">
+                <!-- Left Panel - Products/Categories -->
+                <div class="w-2/3 p-4">
+                    <div class="mb-4 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-900">Point of Sale</h2>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-600" data-bind="currentUser.businessName">Coffee Shop Central</span>
+                            <button class="bg-error text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors" data-event="click:logout">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category Tabs -->
+                    <div class="mb-4">
+                        <div class="flex space-x-2 border-b border-gray-200">
+                            <button class="px-4 py-2 text-sm font-medium text-primary border-b-2 border-primary bg-white">All Items</button>
+                            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Beverages</button>
+                            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Food</button>
+                            <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Desserts</button>
+                        </div>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div class="grid grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto h-96">
+                        <!-- @MAP: products.map(product => ( -->
+                        <div class="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow" data-event="click:addToCart" data-mock="true">
+                            <div class="aspect-square bg-gray-200 rounded-md mb-3 flex items-center justify-center">
+                                <i class="fas fa-coffee text-gray-400 text-2xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 text-sm mb-1">Espresso</h3>
+                            <p class="text-primary font-bold">$3.50</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow" data-event="click:addToCart" data-mock="true">
+                            <div class="aspect-square bg-gray-200 rounded-md mb-3 flex items-center justify-center">
+                                <i class="fas fa-cookie-bite text-gray-400 text-2xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 text-sm mb-1">Croissant</h3>
+                            <p class="text-primary font-bold">$4.25</p>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow" data-event="click:addToCart" data-mock="true">
+                            <div class="aspect-square bg-gray-200 rounded-md mb-3 flex items-center justify-center">
+                                <i class="fas fa-ice-cream text-gray-400 text-2xl"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 text-sm mb-1">Latte</h3>
+                            <p class="text-primary font-bold">$4.00</p>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+
+                <!-- Right Panel - Cart/Checkout -->
+                <div class="w-1/3 bg-white border-l border-gray-200 p-4 flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Current Order</h3>
+                    
+                    <!-- Cart Items -->
+                    <div class="flex-1 overflow-y-auto mb-4">
+                        <!-- @MAP: cartItems.map(item => ( -->
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100" data-mock="true">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900">Espresso</h4>
+                                <p class="text-sm text-gray-600">$3.50 x 2</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="w-6 h-6 bg-gray-100 rounded text-xs hover:bg-gray-200" data-event="click:decreaseQuantity">-</button>
+                                <span class="w-8 text-center text-sm">2</span>
+                                <button class="w-6 h-6 bg-gray-100 rounded text-xs hover:bg-gray-200" data-event="click:increaseQuantity">+</button>
+                                <button class="text-error hover:text-red-700 ml-2" data-event="click:removeItem">
+                                    <i class="fas fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Subtotal:</span>
+                            <span class="font-medium" data-bind="order.subtotal">$7.00</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Tax (8.5%):</span>
+                            <span class="font-medium" data-bind="order.tax">$0.60</span>
+                        </div>
+                        <div class="flex justify-between text-lg font-bold border-t border-gray-200 pt-2">
+                            <span>Total:</span>
+                            <span data-bind="order.total">$7.60</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mt-4">
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <button class="bg-primary text-white py-3 px-4 rounded-md hover:bg-blue-600 transition-colors" data-event="click:processCash">
+                                <i class="fas fa-money-bill mr-2"></i>Cash
+                            </button>
+                            <button class="bg-gray-600 text-white py-3 px-4 rounded-md hover:bg-gray-700 transition-colors" data-event="click:processCard">
+                                <i class="fas fa-credit-card mr-2"></i>Card
+                            </button>
+                        </div>
+                        <button class="w-full bg-success text-white py-3 px-4 rounded-md hover:bg-emerald-600 transition-colors text-lg font-semibold" data-event="click:completeOrder">
+                            Complete Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: POSInterface -->
+
+        <!-- @COMPONENT: ReceiptModal -->
+        <div id="receipt-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Order Complete</h3>
+                    <button class="text-gray-400 hover:text-gray-600" data-event="click:closeReceiptModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Receipt Preview -->
+                <div id="receipt-content" class="bg-gray-50 p-4 rounded border font-mono text-sm mb-4">
+                    <div class="text-center mb-4">
+                        <h2 class="font-bold text-lg" data-bind="businessName">COFFEE SHOP CENTRAL</h2>
+                        <p class="text-xs">123 Main Street, City, ST 12345</p>
+                        <p class="text-xs">Tel: (555) 123-4567</p>
+                        <hr class="my-2 border-gray-400">
+                    </div>
+                    
+                    <div data-mock="true">
+                        <p class="text-xs mb-2">Receipt #: <span data-bind="receiptNumber">R001234</span></p>
+                        <p class="text-xs mb-2">Date: <span data-bind="date">2024-01-15 14:30:22</span></p>
+                        <p class="text-xs mb-4">Cashier: <span data-bind="cashier">POS User</span></p>
+                        
+                        <hr class="my-2 border-gray-400">
+                        
+                        <!-- Receipt Items -->
+                        <div class="space-y-1 mb-4">
+                            <div class="flex justify-between">
+                                <span>2x Espresso @ $3.50</span>
+                                <span>$7.00</span>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-2 border-gray-400">
+                        
+                        <div class="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span>$7.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tax (8.5%):</span>
+                            <span>$0.60</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-base">
+                            <span>TOTAL:</span>
+                            <span>$7.60</span>
+                        </div>
+                        
+                        <hr class="my-2 border-gray-400">
+                        
+                        <div class="text-center text-xs">
+                            <p>Thank you for your business!</p>
+                            <p>Please come again</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button class="flex-1 bg-primary text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors" data-event="click:printReceipt">
+                        <i class="fas fa-print mr-2"></i>Print Receipt
+                    </button>
+                    <button class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors" data-event="click:closeReceiptModal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ReceiptModal -->
+
+    </main>
+    <!-- @END_COMPONENT: MainContainer -->
+
+    <!-- @STATE: currentView:string = 'landing' -->
+    <!-- @STATE: currentUser:object = null -->
+    <!-- @STATE: isAuthenticated:boolean = false -->
+    <!-- @STATE: cartItems:array = [] -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        // This would include:
+        // - Authentication systems for admin and POS users
+        // - Data persistence with data.json file
+        // - Environment configuration with .env file
+        // - POS creation and approval workflow
+        // - Transaction processing and receipt generation
+        // - Print functionality for receipts
+        // - Session management for different user types
+        
+        (function() {
+            // Mock navigation system for demonstration
+            const views = ['landing-page', 'pos-login', 'pos-creation', 'admin-login', 'admin-dashboard', 'pos-interface'];
+            
+            function showView(viewName) {
+                views.forEach(view => {
+                    const element = document.getElementById(view);
+                    if (element) {
+                        element.classList.add('hidden');
+                    }
+                });
+                
+                const targetView = document.getElementById(viewName);
+                if (targetView) {
+                    targetView.classList.remove('hidden');
+                }
+            }
+            
+            // Event delegation for navigation
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('[data-event]');
+                if (!target) return;
+                
+                const event = target.getAttribute('data-event');
+                
+                switch(event) {
+                    case 'click:showPOSLogin':
+                        showView('pos-login');
+                        break;
+                    case 'click:showPOSCreation':
+                        showView('pos-creation');
+                        break;
+                    case 'click:showAdminLogin':
+                        showView('admin-login');
+                        break;
+                    case 'click:showLanding':
+                        showView('landing-page');
+                        break;
+                    case 'click:authenticateAdmin':
+                        e.preventDefault();
+                        // TODO: Validate admin credentials
+                        showView('admin-dashboard');
+                        break;
+                    case 'click:authenticatePOS':
+                        e.preventDefault();
+                        // TODO: Validate POS credentials
+                        showView('pos-interface');
+                        break;
+                    case 'click:completeOrder':
+                        // TODO: Process transaction
+                        document.getElementById('receipt-modal').classList.remove('hidden');
+                        break;
+                    case 'click:closeReceiptModal':
+                        document.getElementById('receipt-modal').classList.add('hidden');
+                        break;
+                    case 'click:printReceipt':
+                        // TODO: Implement print functionality
+                        const receiptContent = document.getElementById('receipt-content');
+                        const printWindow = window.open('', '_blank');
+                        printWindow.document.write(`
+                            <html>
+                                <head>
+                                    <title>Receipt</title>
+                                    <style>
+                                        body { font-family: monospace; font-size: 12px; margin: 0; padding: 20px; }
+                                        .receipt { max-width: 300px; margin: 0 auto; }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="receipt">${receiptContent.innerHTML}</div>
+                                </body>
+                            </html>
+                        `);
+                        printWindow.document.close();
+                        printWindow.print();
+                        break;
+                    case 'click:logout':
+                        showView('landing-page');
+                        break;
+                }
+            });
+            
+            // Initialize the application
+            showView('landing-page');
+        })();
+    </script>
+</body>
+</html>
