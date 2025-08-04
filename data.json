@@ -21,7 +21,8 @@
       "approvedBy": "admin-001",
       "businessAddress": "123 Main Street, City, ST 12345",
       "businessPhone": "(555) 123-4567",
-      "receiptFooter": "Thank you for your business!\nPlease come again"
+      "receiptFooter": "Thank you for your business!\nPlease come again",
+      "taxRate": "12"
     }
   ],
   "products": [

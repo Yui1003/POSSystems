@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { mongoStorage } from "./mongodb-storage";
 
 const app = express();
 app.use(express.json());
@@ -64,7 +65,16 @@ app.use((req, res, next) => {
   server.listen({
     port,
     host: "0.0.0.0",
-  }, () => {
+  }, async () => {
+    // Connect to MongoDB if using MongoDB storage
+    if (process.env.MONGODB_URI) {
+      try {
+        await mongoStorage.connect();
+        console.log('Connected to MongoDB');
+      } catch (error) {
+        console.error('Failed to connect to MongoDB:', error);
+      }
+    }
     log(`serving on port ${port}`);
   });
 })();
