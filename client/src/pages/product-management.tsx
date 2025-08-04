@@ -328,20 +328,21 @@ export default function ProductManagement() {
       {/* Navigation Header */}
       <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Package className="text-primary text-2xl mr-3" />
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">Product Management</h1>
-                <p className="text-sm text-gray-500">{user.businessName}</p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 sm:py-0 sm:h-16 gap-3 sm:gap-0">
+            <div className="flex items-center w-full sm:w-auto">
+              <Package className="text-primary text-xl sm:text-2xl mr-2 sm:mr-3 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">Product Management</h1>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">{user.businessName}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
               <Dialog open={businessInfoDialogOpen} onOpenChange={setBusinessInfoDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Business Settings
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden xs:inline">Business Settings</span>
+                    <span className="xs:hidden">Settings</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -424,9 +425,10 @@ export default function ProductManagement() {
               </Dialog>
               <Dialog open={currencyDialogOpen} onOpenChange={setCurrencyDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Currency
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden xs:inline">Currency</span>
+                    <span className="xs:hidden">{currencySymbol}</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -466,9 +468,10 @@ export default function ProductManagement() {
               </Dialog>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button onClick={resetForm}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Product
+                  <Button onClick={resetForm} size="sm" className="text-xs sm:text-sm">
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden xs:inline">Add Product</span>
+                    <span className="xs:hidden">Add</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -579,10 +582,13 @@ export default function ProductManagement() {
               </Dialog>
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => setLocation("/pos/interface")}
+                className="text-xs sm:text-sm"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to POS
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">Back to POS</span>
+                <span className="xs:hidden">Back</span>
               </Button>
             </div>
           </div>
@@ -590,7 +596,7 @@ export default function ProductManagement() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-8 px-4">
+      <main className="max-w-7xl mx-auto py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6">
         {isLoading ? (
           <div className="text-center py-8">
             <p>Loading products...</p>
@@ -608,23 +614,23 @@ export default function ProductManagement() {
             ) : (
               Object.entries(productsByCategory).map(([category, categoryProducts]) => (
                 <div key={category}>
-                  <div className="flex items-center mb-4">
-                    <Tag className="w-5 h-5 text-gray-500 mr-2" />
-                    <h2 className="text-lg font-semibold text-gray-900">{category}</h2>
-                    <Badge variant="secondary" className="ml-2">
+                  <div className="flex items-center mb-3 sm:mb-4">
+                    <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 mr-2 flex-shrink-0" />
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">{category}</h2>
+                    <Badge variant="secondary" className="ml-2 text-xs">
                       {categoryProducts.length}
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
                     {categoryProducts.map((product) => (
                       <Card key={product.id} className="relative">
-                        <CardContent className="p-4 sm:p-6">
+                        <CardContent className="p-3 sm:p-4 lg:p-6">
                           {product.image && (
-                            <div className="mb-3">
+                            <div className="mb-2 sm:mb-3">
                               <img
                                 src={product.image}
                                 alt={product.name}
-                                className="w-full h-32 object-cover rounded border"
+                                className="w-full h-24 sm:h-28 lg:h-32 object-cover rounded border"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
@@ -632,16 +638,16 @@ export default function ProductManagement() {
                               />
                             </div>
                           )}
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="flex-1 min-w-0 pr-2">
-                              <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                          <div className="flex justify-between items-start mb-3 sm:mb-4">
+                            <div className="flex-1 min-w-0 pr-1 sm:pr-2">
+                              <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 line-clamp-2 leading-tight">
                                 {product.name}
                               </h3>
                             </div>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="flex-shrink-0 h-8 w-8 p-0">
-                                  <MoreHorizontal className="w-4 h-4" />
+                                <Button variant="ghost" size="sm" className="flex-shrink-0 h-6 w-6 sm:h-8 sm:w-8 p-0 min-h-[24px] sm:min-h-[32px]">
+                                  <MoreHorizontal className="w-3 h-3 sm:w-4 sm:h-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="z-50">
@@ -661,12 +667,12 @@ export default function ProductManagement() {
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
-                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                            <span className="text-lg sm:text-xl font-bold text-green-600">
+                          <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-1 sm:gap-2">
+                            <span className="text-base sm:text-lg lg:text-xl font-bold text-green-600">
                               {currentPOS?.currencySymbol || "$"}{parseFloat(product.price).toFixed(2)}
                             </span>
-                            <span className="text-xs sm:text-sm text-gray-500">
-                              Stock: {product.stock}
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                              {product.stock} in stock
                             </span>
                           </div>
                         </CardContent>
